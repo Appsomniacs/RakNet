@@ -7,7 +7,6 @@
  *  of patent rights can be found in the PATENTS file in the same directory.
  *
  */
-
 #include "stddef.h"
 
 #ifndef _GCC_WIN_STRINGS

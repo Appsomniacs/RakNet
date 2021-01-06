@@ -9,7 +9,6 @@
  */
 
 #include "UDPForwarder.h"
-#include <netdb.h>
 
 #if _RAKNET_SUPPORT_UDPForwarder==1
 
@@ -23,6 +22,7 @@
 #include "SocketDefines.h"
 #include "VitaIncludes.h"
 #include "errno.h"
+#include <netdb.h>
 
 #ifndef INVALID_SOCKET
 #define INVALID_SOCKET -1
@@ -168,6 +168,8 @@ UDPForwarderResult UDPForwarder::StartForwarding(SystemAddress source, SystemAdd
 		}
 		startForwardingOutputMutex.Unlock();
 	}
+
+	return UDPFORWARDER_RESULT_COUNT;
 }
 void UDPForwarder::StopForwarding(SystemAddress source, SystemAddress destination)
 {

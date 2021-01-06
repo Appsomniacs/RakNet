@@ -22,6 +22,7 @@
 #include "RakNetSocket2.h"
 #include <netdb.h>
 
+
 #if   defined(_WIN32)
 // extern __int64 _strtoui64(const char*, char**, int); // needed for Code::Blocks. Does not compile on Visual Studio 2010
 // IP_DONTFRAGMENT is different between winsock 1 and winsock 2.  Therefore, Winsock2.h must be linked againt Ws2_32.lib
@@ -727,9 +728,9 @@ bool SystemAddress::FromString(const char *str, char portDelineator, int ipVersi
 	{
 		address.addr4.sin_port=oldPort;
 	}
-    
-    return true;
 #endif // #if RAKNET_SUPPORT_IPV6!=1
+
+	return true;
 }
 bool SystemAddress::FromStringExplicitPort(const char *str, unsigned short port, int ipVersion)
 {

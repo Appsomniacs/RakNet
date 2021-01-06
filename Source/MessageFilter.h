@@ -32,10 +32,10 @@ namespace RakNet
 /// Forward declarations
 class RakPeerInterface;
 
-/// \internal Has to be public so some of the shittier compilers can use it.
+/// \internal Has to be public so some of the simpler compilers can use it.
 int RAK_DLL_EXPORT MessageFilterStrComp( char *const &key,char *const &data );
 
-/// \internal Has to be public so some of the shittier compilers can use it.
+/// \internal Has to be public so some of the simpler compilers can use it.
 struct FilterSet
 {
 	bool banOnFilterTimeExceed;
@@ -53,10 +53,10 @@ struct FilterSet
 	DataStructures::OrderedList<RakNet::RakString,RakNet::RakString> allowedRPC4;
 };
 
-/// \internal Has to be public so some of the shittier compilers can use it.
+/// \internal Has to be public so some of the simpler compilers can use it.
 int RAK_DLL_EXPORT FilterSetComp( const int &key, FilterSet * const &data );
 
-/// \internal Has to be public so some of the shittier compilers can use it.
+/// \internal Has to be public so some of the simpler compilers can use it.
 struct FilteredSystem
 {
 	FilterSet *filter;
