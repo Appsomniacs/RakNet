@@ -191,7 +191,7 @@ const char *EmailSender::Send(const char *hostAddress, unsigned short hostPort, 
 	sprintf(query, "Content-Type: text/plain; charset=\"US-ASCII\"\r\n\r\n");
 	tcpInterface.Send(query, (unsigned int)strlen(query), emailServer,false);
 
-	// Write the body of the email, doing some lame shitty shit where I have to make periods at the start of a newline have a second period.
+	// Write the body of the email, doing some lame **** where I have to make periods at the start of a newline have a second period.
 	char *newBody;
 	int bodyLength;
 	bodyLength=(int)strlen(body);

@@ -21,10 +21,11 @@
 
 #include "Itoa.h"
 
-void RNS2_Berkley::SetSocketOptions(size_t recvBufferSize, size_t sendBufferSize)
+void RNS2_Berkley::SetSocketOptions(void)
 {
 	int r;
-	int sock_opt=recvBufferSize;
+	// This doubles the max throughput rate
+	int sock_opt=1024*256;
 	r = setsockopt__( rns2Socket, SOL_SOCKET, SO_RCVBUF, ( char * ) & sock_opt, sizeof ( sock_opt ) );
 	RakAssert(r==0);
 
@@ -35,13 +36,11 @@ void RNS2_Berkley::SetSocketOptions(size_t recvBufferSize, size_t sendBufferSize
 	r = setsockopt__( rns2Socket, SOL_SOCKET, SO_LINGER, ( char * ) & sock_opt, sizeof ( sock_opt ) );
 	// Do not assert, ignore failure
 
-#ifdef __APPLE__
-	sock_opt=1;
-	r = setsockopt__( rns2Socket, SOL_SOCKET, SO_NOSIGPIPE, ( char * ) & sock_opt, sizeof ( sock_opt ) );
-#endif
 
+
+	// This doesn't make much difference: 10% maybe
 	// Not supported on console 2
-	sock_opt=sendBufferSize;
+	sock_opt=1024*16;
 	r = setsockopt__( rns2Socket, SOL_SOCKET, SO_SNDBUF, ( char * ) & sock_opt, sizeof ( sock_opt ) );
 	RakAssert(r==0);
 
@@ -173,7 +172,7 @@ RNS2BindResult RNS2_Berkley::BindSharedIPV4( RNS2_BerkleyBindParameters *bindPar
 	if (rns2Socket == -1)
 		return BR_FAILED_TO_BIND_SOCKET;
 
-	SetSocketOptions(bindParameters->socketRecvBufferSize, bindParameters->socketSendBufferSize);
+	SetSocketOptions();
 	SetNonBlockingSocket(bindParameters->nonBlockingSocket);
 	SetBroadcastSocket(bindParameters->setBroadcast);
 	SetIPHdrIncl(bindParameters->setIPHdrIncl);
@@ -324,15 +323,12 @@ RNS2BindResult RNS2_Berkley::BindSharedIPV4And6( RNS2_BerkleyBindParameters *bin
 		ret = bind__(rns2Socket, aip->ai_addr, (int) aip->ai_addrlen );
 		if (ret>=0)
 		{
-            if (aip->ai_family == AF_INET) {
-                memcpy(&boundAddress.address.addr4, aip->ai_addr, sizeof(sockaddr_in));
-            } else {
-                memcpy(&boundAddress.address.addr6, aip->ai_addr, sizeof(sockaddr_in6));
-            }
+			// Is this valid?
+			memcpy(&boundAddress.address.addr6, aip->ai_addr, sizeof(boundAddress.address.addr6));
 
 			freeaddrinfo(servinfo); // free the linked-list
 
-			SetSocketOptions(bindParameters->socketRecvBufferSize, bindParameters->socketSendBufferSize);
+			SetSocketOptions();
 			SetNonBlockingSocket(bindParameters->nonBlockingSocket);
 			SetBroadcastSocket(bindParameters->setBroadcast);
 			SetIPHdrIncl(bindParameters->setIPHdrIncl);

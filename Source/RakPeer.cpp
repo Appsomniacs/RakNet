@@ -97,9 +97,8 @@ extern void Console2GetIPAndPort(unsigned int, char *, unsigned short *, unsigne
 #endif
 
 static bool INET_REACHABLE = true;
+
 static const int NUM_MTU_SIZES=3;
-
-
 
 static const int mtuSizes[NUM_MTU_SIZES]={MAXIMUM_MTU_SIZE, 1200, 576};
 
@@ -140,7 +139,8 @@ struct PacketFollowedByData
 	unsigned char data[1];
 };
 
-void RakPeer::setInetReachable(bool b) {
+void RakPeer::setInetReachable(bool b)
+{
     INET_REACHABLE = b;
 }
 
@@ -371,11 +371,9 @@ RakPeer::~RakPeer()
 // \param[in] _threadSleepTimer How many ms to Sleep each internal update cycle. With new congestion control, the best results will be obtained by passing 10.
 // \param[in] socketDescriptors An array of SocketDescriptor structures to force RakNet to listen on a particular IP address or port (or both).  Each SocketDescriptor will represent one unique socket.  Do not pass redundant structures.  To listen on a specific port, you can pass &socketDescriptor, 1SocketDescriptor(myPort,0); such as for a server.  For a client, it is usually OK to just pass SocketDescriptor();
 // \param[in] socketDescriptorCount The size of the \a socketDescriptors array.  Pass 1 if you are not sure what to pass.
-/// \param[in] socketRecvBufferSize Made to work on Linux/macOS only, might or might not work in other platforms
-// \param[in] socketSendBufferSize Made to work on Linux/macOS only, might or might not work in other platforms
 // \return False on failure (can't create socket or thread), true on success.
 // --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-StartupResult RakPeer::Startup( unsigned int maxConnections, SocketDescriptor *socketDescriptors, unsigned socketDescriptorCount, size_t socketRecvBufferSize, size_t socketSendBufferSize, int threadPriority )
+StartupResult RakPeer::Startup( unsigned int maxConnections, SocketDescriptor *socketDescriptors, unsigned socketDescriptorCount, int threadPriority )
 {
 	if (IsActive())
 		return RAKNET_ALREADY_STARTED;
@@ -514,8 +512,6 @@ StartupResult RakPeer::Startup( unsigned int maxConnections, SocketDescriptor *s
 			bbp.pollingThreadPriority=threadPriority;
 			bbp.eventHandler=this;
 			bbp.remotePortRakNetWasStartedOn_PS3_PS4_PSP2=socketDescriptors[i].remotePortRakNetWasStartedOn_PS3_PSP2;
-            bbp.socketRecvBufferSize = socketRecvBufferSize;
-            bbp.socketSendBufferSize = socketSendBufferSize;
 			RNS2BindResult br = ((RNS2_Berkley*) r2)->Bind(&bbp, _FILE_AND_LINE_);
 
 			if (
@@ -1774,6 +1770,8 @@ ConnectionState RakPeer::GetConnectionState(const AddressOrGUID systemIdentifier
     default:
 		return IS_NOT_CONNECTED;
 	}
+
+	return IS_NOT_CONNECTED;
 }
 
 
@@ -2933,6 +2931,7 @@ void RakPeer::GetSockets( DataStructures::List<RakNetSocket2* > &sockets )
 			return;
 		}
 	}
+	return;
 }
 void RakPeer::ReleaseSockets( DataStructures::List<RakNetSocket2* > &sockets )
 {
@@ -3680,7 +3679,7 @@ RakPeer::RemoteSystemStruct * RakPeer::AssignSystemAddressToRemoteSystemList( co
 				// For now use the incoming socket only
 				// Originally this code was to force a machine with multiple IP addresses to reply back on the IP
 				// that the datagram came in on
-				if (/* DISABLES CODE */ (1) || foundIndex==(unsigned int)-1)
+				if (1 || foundIndex==(unsigned int)-1)
 				{
 					// Must not be an internal LAN address. Just use whatever socket it came in on
 					remoteSystem->rakNetSocket=incomingRakNetSocket;
@@ -6472,7 +6471,7 @@ void RakPeer::FillIPList(void)
 
 	// Fill out ipList structure
 #if  !defined(WINDOWS_STORE_RT)
-    if (INET_REACHABLE) {
+    if(INET_REACHABLE){
         RakNetSocket2::GetMyIP( ipList );
     }
 #endif

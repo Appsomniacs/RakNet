@@ -129,17 +129,12 @@
 #endif
 
 #ifndef RAKNET_SUPPORT_IPV6
+#if !defined(ANDROID)
+#define RAKNET_SUPPORT_IPV6 1
+#else
 #define RAKNET_SUPPORT_IPV6 0
 #endif
-
-
-
-
-
-
-
-
-
+#endif
 
 
 #ifndef RAKSTRING_TYPE
