@@ -1076,7 +1076,6 @@ RAK_THREAD_DECLARATION(RakNet::UpdateTCPInterfaceLoop)
 #if RAKNET_SUPPORT_IPV6!=1
 							sts->remoteClients[newRemoteClientIndex].systemAddress.address.addr4.sin_addr.s_addr=sockAddr.sin_addr.s_addr;
 							sts->remoteClients[newRemoteClientIndex].systemAddress.SetPortNetworkOrder( sockAddr.sin_port);
-							sts->remoteClients[newRemoteClientIndex].systemAddress.systemIndex=newRemoteClientIndex;
 #else
 							if (sockAddr.ss_family==AF_INET)
 							{
@@ -1090,6 +1089,7 @@ RAK_THREAD_DECLARATION(RakNet::UpdateTCPInterfaceLoop)
 							}
 
 #endif // #if RAKNET_SUPPORT_IPV6!=1
+                            sts->remoteClients[newRemoteClientIndex].systemAddress.systemIndex=newRemoteClientIndex;
 							sts->remoteClients[newRemoteClientIndex].SetActive(true);
 							sts->remoteClients[newRemoteClientIndex].isActiveMutex.Unlock();
 

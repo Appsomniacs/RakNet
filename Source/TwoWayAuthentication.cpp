@@ -197,6 +197,7 @@ PluginReceiveResult TwoWayAuthentication::OnReceive(Packet *packet)
 					{
 						return OnHashedNonceAndPassword(packet);
 					}
+					break;
 				}
 			}
 			return RR_STOP_PROCESSING_AND_DEALLOCATE;
@@ -212,6 +213,7 @@ PluginReceiveResult TwoWayAuthentication::OnReceive(Packet *packet)
 			else
 				break;
 		}
+		break;
 		// These should only be generated locally
 		case ID_TWO_WAY_AUTHENTICATION_INCOMING_CHALLENGE_SUCCESS:
 		case ID_TWO_WAY_AUTHENTICATION_INCOMING_CHALLENGE_FAILURE:

@@ -151,7 +151,7 @@ void CommandParserInterface::ReturnResult(int res, const char *command,Transport
 }
 void CommandParserInterface::ReturnResult(const char *command, TransportInterface *transport, const SystemAddress &systemAddress)
 {
-	transport->Send(systemAddress, "Successfully called %s.\r\n", command);
+	transport->Send(systemAddress, "\r\nSuccessfully called %s.\r\n", command);
 }
 void CommandParserInterface::ReturnResult(char *res, const char *command, TransportInterface *transport, const SystemAddress &systemAddress)
 {
