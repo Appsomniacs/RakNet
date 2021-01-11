@@ -96,6 +96,7 @@ extern void Console2GetIPAndPort(unsigned int, char *, unsigned short *, unsigne
 */
 #endif
 
+static bool INET_REACHABLE = true;
 
 static const int NUM_MTU_SIZES=3;
 
@@ -139,6 +140,11 @@ struct PacketFollowedByData
 	Packet p;
 	unsigned char data[1];
 };
+
+void RakPeer::setInetReachable(bool b)
+{
+    INET_REACHABLE = b;
+}
 
 Packet *RakPeer::AllocPacket(unsigned dataSize, const char *file, unsigned int line)
 {
@@ -6469,7 +6475,10 @@ void RakPeer::FillIPList(void)
 #if  !defined(WINDOWS_STORE_RT)
 	RakNetSocket2::GetMyIP( ipList );
 #endif
-
+    
+    if(INET_REACHABLE){
+        RakNetSocket2::GetMyIP( ipList );
+    }
 	// Sort the addresses from lowest to highest
 	int startingIdx = 0;
 	while (startingIdx < MAXIMUM_NUMBER_OF_INTERNAL_IDS-1 && ipList[startingIdx] != UNASSIGNED_SYSTEM_ADDRESS)
