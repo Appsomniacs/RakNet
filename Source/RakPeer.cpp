@@ -2093,7 +2093,7 @@ void RakPeer::Ping( const SystemAddress target )
 // --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 bool RakPeer::Ping( const char* host, unsigned short remotePort, bool onlyReplyOnAcceptingConnections, unsigned connectionSocketIndex )
 {
-	if ( host == 0 )
+	if ( host == 0 || connectionSocketIndex >= socketList.Size())
 		return false;
 
 	// If this assert hits then Startup wasn't called or the call failed.
