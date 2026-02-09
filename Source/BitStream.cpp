@@ -885,7 +885,8 @@ void BitStream::PrintHex( char *out ) const
 	BitSize_t i;
 	for ( i=0; i < GetNumberOfBytesUsed(); i++)
 	{
-		sprintf(out+i*3, "%02x ", data[i]);
+        snprintf(out + i * 3, 4, "%02x ", data[i]);
+		//sprintf(out+i*3, "%02x ", data[i]);
 	}
 }
 void BitStream::PrintHex( void ) const

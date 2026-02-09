@@ -92,6 +92,7 @@ void fillBufferMT( void *buffer, unsigned int bytes )
 	fillBufferMT(buffer, bytes, _state, _next, _left);
 }
 
+/*
 void seedMT( unsigned int seed, unsigned int *state, unsigned int *&next, int &left )   // Defined in cokus_c.c
 {
 	(void) next;
@@ -150,8 +151,30 @@ void seedMT( unsigned int seed, unsigned int *state, unsigned int *&next, int &l
 
 		;
 }
+*/
 
+//updated for c++20 by GEMNI AI
+void seedMT(unsigned int seed, unsigned int *state, [[maybe_unused]] unsigned int *&next, int &left)
+{
+    // 1. 'register' is removed (deleted in C++17, illegal in C++20)
+    // 2. [[maybe_unused]] replaces the (void)next cast for cleaner intent
+    
+    unsigned int x = (seed | 1U) & 0xFFFFFFFFU;
+    unsigned int *s = state;
 
+    left = 0;
+    *s++ = x;
+
+    // Standard loop is preferred over the complex 'for' header for readability,
+    // though the logic remains bit-identical to the original.
+    for (int j = N - 1; j > 0; --j)
+    {
+        x *= 69069U;
+        *s++ = x & 0xFFFFFFFFU;
+    }
+}
+
+/*
 unsigned int reloadMT( unsigned int *state, unsigned int *&next, int &left )
 {
 	register unsigned int * p0 = state, *p2 = state + 2, *pM = state + M, s0, s1;
@@ -177,6 +200,47 @@ unsigned int reloadMT( unsigned int *state, unsigned int *&next, int &left )
 	s1 ^= ( s1 << 15 ) & 0xEFC60000U;
 
 	return ( s1 ^ ( s1 >> 18 ) );
+}
+*/
+
+//updated for c++20 by GEMNI AI
+unsigned int reloadMT(unsigned int* state, unsigned int*& next, int& left) {
+    // 'register' removed as it is illegal in C++20
+    unsigned int* p0 = state;
+    unsigned int* p2 = state + 2;
+    unsigned int* pM = state + M;
+    unsigned int s0, s1;
+    int j;
+
+    // Logic: If not initialized, seed with a default
+    // Note: If seedMT requires the other params, update this call accordingly
+    if (left < -1) {
+        seedMT(4357U, state, next, left);
+    }
+
+    left = N - 1;
+    next = state + 1;
+
+    // First Loop: Fill from current state and offset pM
+    for (s0 = state[0], s1 = state[1], j = N - M + 1; --j; s0 = s1, s1 = *p2++) {
+        *p0++ = *pM++ ^ (mixBits(s0, s1) >> 1) ^ (loBit(s1) ? K : 0U);
+    }
+
+    // Second Loop: pM wraps around to the start of the state array
+    for (pM = state, j = M; --j; s0 = s1, s1 = *p2++) {
+        *p0++ = *pM++ ^ (mixBits(s0, s1) >> 1) ^ (loBit(s1) ? K : 0U);
+    }
+
+    // Final assignment to close the generator loop
+    s1 = state[0];
+    *p0 = *pM ^ (mixBits(s0, s1) >> 1) ^ (loBit(s1) ? K : 0U);
+
+    // Tempering transformations
+    s1 ^= (s1 >> 11);
+    s1 ^= (s1 << 7) & 0x9D2C5680U;
+    s1 ^= (s1 << 15) & 0xEFC60000U;
+
+    return (s1 ^ (s1 >> 18));
 }
 
 
