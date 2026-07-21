@@ -1,58 +1,36 @@
-cmake_minimum_required(VERSION 2.6)
-
+cmake_minimum_required(VERSION 3.22)
 project(RakNet)
 
-if( NOT APPLE )
-# check 64 bit
-if( CMAKE_SIZEOF_VOID_P MATCHES "4" )
-  set( HAVE_64_BIT 0 )
-else(  CMAKE_SIZEOF_VOID_P MATCHES "4")
-  set( HAVE_64_BIT 1 )
-endif(  CMAKE_SIZEOF_VOID_P MATCHES "4")
-endif( NOT APPLE )
+# 1. Source File Collection
+# Rule B: Replicating all source locations from the legacy Android.mk
+file(GLOB RAKNET_SOURCES_CPP "Source/*.cpp")
+file(GLOB RAKNET_SOURCES_C   "Source/*.c")
+file(GLOB MINIUPNPC_SOURCES  "DependentExtensions/miniupnpc-1.5/*.c")
 
-IF (WIN32 AND NOT UNIX)
-	set (PROGRAMFILESX86 $ENV{PROGRAMFILES})
-	string(REPLACE "\\" "/" PROGRAMFILESX86 ${PROGRAMFILESX86})
-ENDIF(WIN32 AND NOT UNIX)
+# Combine all sources into a single list
+set(ALL_SOURCES ${RAKNET_SOURCES_CPP} ${RAKNET_SOURCES_C} ${MINIUPNPC_SOURCES})
 
-IF (WIN32 AND NOT UNIX)
-	set(RAKNET_LIBRARY_LIBS ws2_32.lib)
-ELSE(WIN32 AND NOT UNIX)
-	set(RAKNET_LIBRARY_LIBS pthread)
-ENDIF(WIN32 AND NOT UNIX)
+# 2. Define Static Target
+# Pattern: Using 'raknet_static' to match your bridge library list exactly
+add_library(raknet_static STATIC ${ALL_SOURCES})
 
+# 3. Include Directories (Exported to Axmol)
+# Rule B: Map LOCAL_C_INCLUDES using ${CMAKE_CURRENT_SOURCE_DIR} for portability
+target_include_directories(raknet_static PUBLIC 
+    ${CMAKE_CURRENT_SOURCE_DIR}/Source
+    ${CMAKE_CURRENT_SOURCE_DIR}/DependentExtensions/miniupnpc-1.5
+)
 
-# Options
-option( RAKNET_ENABLE_SAMPLES 	"Generate RakNet sample projects if true." 		TRUE  )
-option( RAKNET_ENABLE_DLL		"Generate the DLL project if true." 			TRUE )
-option( RAKNET_ENABLE_STATIC	"Generate the static library project if true." 	TRUE )
-option( RAKNET_GENERATE_INCLUDE_ONLY_DIR "Setup a include/RakNet/ directory in which all the headers are copied." FALSE )
+# 4. Modern Toolchain Compatibility Adjustments
+# Rule C: Patch gaps for older C libraries (like MiniUPNPC)
+if(ANDROID)
+    # Inject POSIX extensions required for 12-year-old socket code [1, 2]
+    target_compile_definitions(raknet_static PRIVATE _GNU_SOURCE)
+    
+    # Ensure Android logging is available
+    target_link_libraries(raknet_static PUBLIC log)
 
-set( RAKNETHEADERFILES ${RakNet_SOURCE_DIR}/Source ) #This name doesn't follow CMake conventions but for retro compatibility I'll let it there.
-
-if( RAKNET_GENERATE_INCLUDE_ONLY_DIR )
-	set( RAKNET_INCLUDE_ONLY_DIR ${RakNet_SOURCE_DIR}/include ) # this will be visible by client code
-	set( RAKNET_NAMED_INCLUDE_ONLY_DIR ${RAKNET_INCLUDE_ONLY_DIR}/RakNet )
-	message( STATUS "Setting up the ${RAKNET_NAMED_INCLUDE_ONLY_DIR} directory..." )
-	# Now setup the include/RakNet/*.h files.
-	file( MAKE_DIRECTORY ${RAKNET_NAMED_INCLUDE_ONLY_DIR} )
-	file( COPY ${RAKNETHEADERFILES}/ DESTINATION ${RAKNET_NAMED_INCLUDE_ONLY_DIR} FILES_MATCHING PATTERN "*.h"  )
-	message( STATUS "DONE: Setting up the ${RAKNET_NAMED_INCLUDE_ONLY_DIR} directory." )
-endif()
-
-set( RAKNET_INCLUDE_DIRS ${RAKNETHEADERFILES} ${RAKNET_INCLUDE_ONLY_DIR} PARENT_SCOPE ) # Visible from outside
-
-include(./CmakeIncludes/CmakeMacros.txt)
-FIXLINKOPTIONS()
-FIXCOMPILEOPTIONS()
-
-
-add_subdirectory(Lib)
-
-
-set(RAKNET_COMMON_LIBS RakNetLibStatic)
-
-if( RAKNET_GENERATE_SAMPLES )
-	add_subdirectory(Samples)
+elseif(WIN32)
+    # Link Windows socket library
+    target_link_libraries(raknet_static PUBLIC ws2_32)
 endif()
