@@ -36,3 +36,4 @@ Source/*.o
 
 # Vim
 *.swp
+.ignore_*
