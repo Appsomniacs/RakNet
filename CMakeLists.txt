@@ -25,7 +25,8 @@ target_include_directories(raknet_static PUBLIC
 # Rule C: Patch gaps for older C libraries (like MiniUPNPC)
 if(ANDROID)
     # Inject POSIX extensions required for 12-year-old socket code [1, 2]
-    target_compile_definitions(raknet_static PRIVATE _GNU_SOURCE)
+    # ADD 'ANDROID' to this list to support legacy #if defined(ANDROID) checks
+    target_compile_definitions(raknet_static PRIVATE _GNU_SOURCE ANDROID)
     
     # Ensure Android logging is available
     target_link_libraries(raknet_static PUBLIC log)
@@ -34,3 +35,4 @@ elseif(WIN32)
     # Link Windows socket library
     target_link_libraries(raknet_static PUBLIC ws2_32)
 endif()
+
