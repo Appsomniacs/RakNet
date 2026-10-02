@@ -26,7 +26,16 @@ target_include_directories(raknet_static PUBLIC
 if(ANDROID)
     # Inject POSIX extensions required for 12-year-old socket code [1, 2]
     # ADD 'ANDROID' to this list to support legacy #if defined(ANDROID) checks
-    target_compile_definitions(raknet_static PRIVATE _GNU_SOURCE ANDROID)
+    #target_compile_definitions(raknet_static PRIVATE _GNU_SOURCE ANDROID)
+    # ^^^ NO!!! "PRIVATE _GNU_SOURCE ANDROID" was not enough to get ping working on Android where the ping times were resolving as 0 or malformed (causing a crash).
+
+    # Must be PUBLIC so game code (ServerPinger) inherits identical struct layouts and timing types
+    target_compile_definitions(raknet_static PUBLIC
+            _GNU_SOURCE
+            ANDROID
+            __GET_TIME_64BIT=1
+            _RAKNET_SUPPORT_64BIT_IDS=1
+    )
     
     # Ensure Android logging is available
     target_link_libraries(raknet_static PUBLIC log)
